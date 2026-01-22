@@ -1,6 +1,20 @@
 use colour::Colour;
 
 fn main() {
-    println!("{}", "Hi my name is Nikolas Nikshiqi".truecolor(192));
-    println!("{}", "Hi my name is Nikolas Nikshiqi".truecolor_rgb(0, 170, 170));
+    println!("{}", "Hi my name is Nikolas Nikshiqi".truecolour(192));
+    println!(
+        "{}",
+        "Hi my name is Nikolas Nikshiqi".truecolour_rgb(0, 170, 170)
+    );
+
+    println!(
+        "{}",
+        "Hi my name is Nikolas Nikshiqi".bold().bg_blue().truecolour(192)
+    );
+    println!(
+        "{}",
+        "Hi my name is Nikolas Nikshiqi"
+            .italic()
+            .truecolour_rgb(0, 170, 170)
+    );
 }
