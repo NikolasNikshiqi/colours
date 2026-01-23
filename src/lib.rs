@@ -21,10 +21,25 @@
 //! println!("{}", "Hello World".bg_truecolour_rgb(0, 170, 170)); //Cyan background (Truecolour rgb format)
 //! println!("{}", "Hello Red Background".bg_red()); //Red background
 //! println!("{}", "Hello Rainbow".rainbow()); // Produces rainbow text
+//! 
+//! //Reset
+//! 
+//! let mut str = "Hello world".red().bold();
+//! str = str.reset();
+//! println!("{}",str);
+//! 
+//! // Or
+//! 
+//! let str = "Hello world".red().bold();
+//! let str = str.reset();
+//! println!("{}",str);
 //! ```
 //!
 //! See the [`Colour`] trait for all the methods. All methods return a String.
-use std::{borrow::Borrow, fmt::Display};
+use std::{
+    borrow::Borrow,
+    fmt:: Display,
+};
 
 pub(crate) const RESET: &str = "\x1b[0m";
 pub(crate) const RESET_BOLD: &str = "\x1b[22m";
@@ -96,6 +111,9 @@ pub trait Colour {
     /// println!("{}", "Italic Text".italic());
     /// ```
     fn italic(&self) -> String;
+
+    /// Removes the styles and colors 
+    fn reset(&self) -> String;
 
     // --- Standard Foreground ---
 
@@ -259,6 +277,26 @@ where
 
     fn italic(&self) -> String {
         format!("{}{}{}", ITALIC, self, RESET_ITALIC)
+    }
+
+    fn reset(&self) -> String {
+        let str: String = self.to_string();
+    
+        let mut result: String = String::new();
+        let mut skip: bool = false;
+        for c in str.chars() {
+            if c == '\x1b' {
+                skip = true;
+            }
+            if !skip {
+                result.push(c);
+            }
+            if  c == 'm' && skip {
+                skip = false;
+            }
+
+        }
+        result
     }
 
     fn black(&self) -> String {
@@ -440,7 +478,7 @@ mod tests {
         assert_eq!("test".bold(), format!("{}{}{}", BOLD, "test", RESET_BOLD));
         assert_eq!(
             "test".italic(),
-            format!("{}{}{}", ITALIC, "test",RESET_ITALIC)
+            format!("{}{}{}", ITALIC, "test", RESET_ITALIC)
         );
     }
 
@@ -494,26 +532,53 @@ mod tests {
 
     #[test]
     fn test_background_standard() {
-        assert_eq!("bg".bg_black(),   format!("{}{}{}", BG_BLACK, "bg", RESET));
-        assert_eq!("bg".bg_red(),     format!("{}{}{}", BG_RED, "bg", RESET));
-        assert_eq!("bg".bg_green(),   format!("{}{}{}", BG_GREEN, "bg", RESET));
-        assert_eq!("bg".bg_yellow(),  format!("{}{}{}", BG_YELLOW, "bg", RESET));
-        assert_eq!("bg".bg_blue(),    format!("{}{}{}", BG_BLUE, "bg", RESET));
-        assert_eq!("bg".bg_magenta(), format!("{}{}{}", BG_MAGENTA, "bg", RESET));
-        assert_eq!("bg".bg_cyan(),    format!("{}{}{}", BG_CYAN, "bg", RESET));
-        assert_eq!("bg".bg_white(),   format!("{}{}{}", BG_WHITE, "bg", RESET));
+        assert_eq!("bg".bg_black(), format!("{}{}{}", BG_BLACK, "bg", RESET));
+        assert_eq!("bg".bg_red(), format!("{}{}{}", BG_RED, "bg", RESET));
+        assert_eq!("bg".bg_green(), format!("{}{}{}", BG_GREEN, "bg", RESET));
+        assert_eq!("bg".bg_yellow(), format!("{}{}{}", BG_YELLOW, "bg", RESET));
+        assert_eq!("bg".bg_blue(), format!("{}{}{}", BG_BLUE, "bg", RESET));
+        assert_eq!(
+            "bg".bg_magenta(),
+            format!("{}{}{}", BG_MAGENTA, "bg", RESET)
+        );
+        assert_eq!("bg".bg_cyan(), format!("{}{}{}", BG_CYAN, "bg", RESET));
+        assert_eq!("bg".bg_white(), format!("{}{}{}", BG_WHITE, "bg", RESET));
     }
 
     #[test]
     fn test_background_bright() {
-        assert_eq!("bg".bg_bright_black(),   format!("{}{}{}", BG_BRIGHT_BLACK, "bg", RESET));
-        assert_eq!("bg".bg_bright_red(),     format!("{}{}{}", BG_BRIGHT_RED, "bg", RESET));
-        assert_eq!("bg".bg_bright_green(),   format!("{}{}{}", BG_BRIGHT_GREEN, "bg", RESET));
-        assert_eq!("bg".bg_bright_yellow(),  format!("{}{}{}", BG_BRIGHT_YELLOW, "bg", RESET));
-        assert_eq!("bg".bg_bright_blue(),    format!("{}{}{}", BG_BRIGHT_BLUE, "bg", RESET));
-        assert_eq!("bg".bg_bright_magenta(), format!("{}{}{}", BG_BRIGHT_MAGENTA, "bg", RESET));
-        assert_eq!("bg".bg_bright_cyan(),    format!("{}{}{}", BG_BRIGHT_CYAN, "bg", RESET));
-        assert_eq!("bg".bg_bright_white(),   format!("{}{}{}", BG_BRIGHT_WHITE, "bg", RESET));
+        assert_eq!(
+            "bg".bg_bright_black(),
+            format!("{}{}{}", BG_BRIGHT_BLACK, "bg", RESET)
+        );
+        assert_eq!(
+            "bg".bg_bright_red(),
+            format!("{}{}{}", BG_BRIGHT_RED, "bg", RESET)
+        );
+        assert_eq!(
+            "bg".bg_bright_green(),
+            format!("{}{}{}", BG_BRIGHT_GREEN, "bg", RESET)
+        );
+        assert_eq!(
+            "bg".bg_bright_yellow(),
+            format!("{}{}{}", BG_BRIGHT_YELLOW, "bg", RESET)
+        );
+        assert_eq!(
+            "bg".bg_bright_blue(),
+            format!("{}{}{}", BG_BRIGHT_BLUE, "bg", RESET)
+        );
+        assert_eq!(
+            "bg".bg_bright_magenta(),
+            format!("{}{}{}", BG_BRIGHT_MAGENTA, "bg", RESET)
+        );
+        assert_eq!(
+            "bg".bg_bright_cyan(),
+            format!("{}{}{}", BG_BRIGHT_CYAN, "bg", RESET)
+        );
+        assert_eq!(
+            "bg".bg_bright_white(),
+            format!("{}{}{}", BG_BRIGHT_WHITE, "bg", RESET)
+        );
     }
 
     #[test]
@@ -525,9 +590,8 @@ mod tests {
 
     #[test]
     fn test_truecolor_logic() {
-        println!("{}","text".bg_truecolour(150));
-        println!("{}","text".bg_truecolour_rgb(255, 100, 50));
-
+        println!("{}", "text".bg_truecolour(150));
+        println!("{}", "text".bg_truecolour_rgb(255, 100, 50));
 
         // Testing 256-color mode (\x1b[38;5;Nm)
         let custom_code = "text".truecolour(150);
@@ -539,7 +603,7 @@ mod tests {
 
         let bg_custom_code = "text".bg_truecolour(150);
         assert_eq!(bg_custom_code, "\x1b[48;5;150mtext\x1b[0m");
-        
+
         let bg_rgb_code = "text".bg_truecolour_rgb(255, 100, 50);
         assert_eq!(bg_rgb_code, "\x1b[48;2;255;100;50mtext\x1b[0m");
     }
@@ -562,5 +626,12 @@ mod tests {
         // Test that it works on an owned String as well as &str
         let owned = String::from("owned");
         assert_eq!(owned.red(), format!("{}{}{}", RED, "owned", RESET));
+    }
+
+    #[test]
+    fn test_reset(){
+        let str = "Hello".red().bold();
+        
+        assert_eq!(str.reset(),"Hello")
     }
 }

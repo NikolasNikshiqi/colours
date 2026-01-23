@@ -16,7 +16,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-simple_colour = "1.0.2"
+simple_colour = "1.0.3"
 
 ```
 
@@ -46,6 +46,11 @@ fn main() {
 
     // Rainbow Effect
     println!("{}", "Full spectrum rainbow text!".rainbow());
+    
+    // Reset
+    let str = "Hello world".red().bold();
+    let str = str.reset();
+    println!("{}",str);
 }
 
 ```
